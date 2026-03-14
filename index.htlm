@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <title>Plataforma Matemàtiques Adaptativa</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; max-width: 800px; margin: auto; }
+        .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; box-shadow: 2px 2px 10px #eee; }
+        .feedback { font-weight: bold; margin-top: 10px; }
+        .status { background: #f4f4f4; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="setup">
+    <h2>Configuració Inicial</h2>
+    <input type="text" id="student_id" placeholder="ID Estudiant">
+    <select id="bloc">
+        <option value="Algebra">Àlgebra</option>
+        <option value="Numeracio">Numeració</option>
+        <option value="Geometria">Geometria</option>
+    </select>
+    <button onclick="iniciarSessio()">Començar</button>
+</div>
+
+<div id="app" style="display:none;">
+    <div class="status">
+        Estudiant: <span id="disp_id"></span> | Bloc: <span id="disp_bloc"></span> | 
+        Nivell: <span id="disp_nivell">1</span>
+    </div>
+    
+    <div class="card">
+        <div id="enunciat">Calcular: $$x + 5 = 10$$</div>
+        <input type="text" id="resposta" placeholder="La teva resposta">
+        <button onclick="validarResposta()">Enviar</button>
+        <div id="feedback" class="feedback"></div>
+    </div>
+</div>
+
+<script>
+    // Configuració de l'estat
+    let estat = {
+        student_id: "",
+        bloc: "",
+        nivell: 1,
+        encerts_consecutius: 0,
+        errors_nivell: 0,
+        total_encerts: 0,
+        total_errors: 0
+    };
+
+    function iniciarSessio() {
+        estat.student_id = document.getElementById('student_id').value;
+        estat.bloc = document.getElementById('bloc').value;
+        if(!estat.student_id) return alert("Posa el teu ID");
+        
+        document.getElementById('setup').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        actualitzarUI();
+    }
+
+    function actualitzarUI() {
+        document.getElementById('disp_id').innerText = estat.student_id;
+        document.getElementById('disp_bloc').innerText = estat.bloc;
+        document.getElementById('disp_nivell').innerText = estat.nivell;
+    }
+
+    async function guardarA_Firebase() {
+        console.log("Cridant save_student_progress...", estat);
+        // Aquí s'integraria la crida real a Firebase:
+        // db.collection("progres").add(estat);
+    }
+
+    function validarResposta() {
+        const resp = document.getElementById('resposta').value;
+        const feedbackDiv = document.getElementById('feedback');
+        
+        // Simulació de validació (aquí aniria la lògica del problema)
+        let esCorrecte = (resp === "5"); 
+
+        if (esCorrecte) {
+            estat.encerts_consecutius++;
+            estat.total_encerts++;
+            estat.errors_nivell = 0;
+            feedbackDiv.style.color = "green";
+            feedbackDiv.innerHTML = "✨ Molt bé! Sabies que el zero va ser inventat a l'Índia?";
+            
+            if (estat.encerts_consecutius >= 3) {
+                pujarNivell();
+            }
+        } else {
+            estat.encerts_consecutius = 0;
+            estat.errors_nivell++;
+            estat.total_errors++;
+            feedbackDiv.style.color = "red";
+            
+            if (estat.errors_nivell === 1) {
+                feedbackDiv.innerHTML = "💡 Pista: Recorda la jerarquia d'operacions.";
+            } else {
+                feedbackDiv.innerHTML = "📚 Tutorial: Anem a resoldre-ho pas a pas...";
+                baixarDificultat();
+            }
+        }
+        actualitzarUI();
+        document.getElementById('resposta').value = "";
+    }
+
+    function pujarNivell() {
+        if (estat.nivell < 5) {
+            estat.nivell++;
+            estat.encerts_consecutius = 0;
+            alert("🚀 Has pujat al Nivell " + estat.nivell);
+            guardarA_Firebase();
+        }
+    }
+
+    function baixarDificultat() {
+        if (estat.nivell > 1) {
+            estat.nivell--;
+            alert("📉 Baixem al Nivell " + estat.nivell + " per reforçar conceptes.");
+        }
+        estat.errors_nivell = 0;
+    }
+</script>
+</body>
+</html>
