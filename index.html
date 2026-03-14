@@ -1,3 +1,35 @@
+<script type="module"> 
+    /* MOLT IMPORTANT: Afegeix type="module" a l'etiqueta script 
+       perquè Firebase pugui carregar les llibreries correctament.
+    */
+
+    // --- AQUÍ ENGANXES EL CODI DE FIREBASE ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "LA_TEVA_API_KEY",
+      authDomain: "el-teu-projecte.firebaseapp.com",
+      projectId: "el-teu-projecte",
+      // ... la resta de la teva config ...
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    // ----------------------------------------
+
+    // Després ja venen les teves funcions:
+    window.iniciarSessio = function() { ... }
+    window.validarResposta = function() { ... }
+    
+    async function save_student_progress(estat) {
+        await addDoc(collection(db, "progres_alumnes"), estat);
+    }
+</script>
+
+
+
+
 <!DOCTYPE html>
 <html lang="ca">
 <head>
